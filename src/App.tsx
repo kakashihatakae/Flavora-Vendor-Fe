@@ -1,11 +1,17 @@
 import React from "react";
-import logo from "./logo.svg";
 import "./App.css";
 import LoggedIn from "./Components/Pages/Login/LoggedIn";
 import LoggedOut from "./Components/Pages/Login/LoggedOut";
+import { Provider } from "react-redux";
+import { store } from "./store";
 
 function App() {
-  return <LoggedOut />;
+  return (
+    <Provider store={store}>
+      <LoggedIn />
+      <LoggedOut />
+    </Provider>
+  );
 }
 
 export default App;
