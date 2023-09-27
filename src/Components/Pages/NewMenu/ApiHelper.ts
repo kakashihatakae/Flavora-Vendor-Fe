@@ -2,6 +2,7 @@ import { Dispatch } from "redux";
 import { BASE_URL } from "../../Shared/const";
 import { addItem } from "./NewMenuSlice";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { getToken } from "../../Shared/AuthUtils";
 
 interface addNewItemProps {
   price: number;
@@ -16,12 +17,14 @@ export const addNewItem = async ({
   dispatch,
   image,
 }: addNewItemProps) => {
+  const token = getToken();
   try {
     // TODO: write api helper
     const data = await fetch(`${BASE_URL}/menu/newitem`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         price,
@@ -50,11 +53,13 @@ export const startNewMenu = async ({
   item_ids,
   title,
 }: StartNewMenuProps) => {
+  const token = getToken();
   try {
     await fetch(`${BASE_URL}/menu/menu`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         order_deadline,
@@ -88,7 +93,6 @@ export const handleUpload = async (file: File, newFileName: string) => {
   // how to cache ?
   try {
     const response = await client.send(command);
-    console.log(response);
   } catch (err) {
     throw new Error(`Failed to send items to s3. Error: ${err}`);
   }

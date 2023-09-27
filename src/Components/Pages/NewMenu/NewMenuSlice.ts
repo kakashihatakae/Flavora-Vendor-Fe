@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { BASE_URL } from "../../Shared/const";
+import { getToken } from "../../Shared/AuthUtils";
 
 interface Item {
   item_id: string;
@@ -26,14 +27,18 @@ const initialState: NewMenuState = {
 export const getAllItems = createAsyncThunk(
   "NewMenuSlice/getAllItems",
   async () => {
+    const token = getToken();
     try {
-      const res = await fetch(`${BASE_URL}/menu/getallitems`);
+      const res = await fetch(`${BASE_URL}/menu/getallitems`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return await res.json();
     } catch (e) {
       // TODO
       console.log(e);
     }
-    return "as";
   }
 );
 

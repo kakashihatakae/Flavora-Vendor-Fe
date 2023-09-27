@@ -25,7 +25,6 @@ export const authHelper = async ({
     if (response.status !== 200) {
       throw new Error(`${response.statusText}`);
     }
-    console.log(response);
     return response;
   } catch (error) {
     console.log(error);

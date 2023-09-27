@@ -61,7 +61,6 @@ const NewItemModal = ({
     setUploading(true);
     try {
       const newFileName = String(Date.now());
-      console.log({ newFileName });
       await handleUpload(file, newFileName);
       await addNewItem({
         price: Number(price),

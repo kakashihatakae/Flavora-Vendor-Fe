@@ -73,7 +73,6 @@ export function ItemCard({
   const onXClick = () => {
     dispatch(removeSelectedItem(id));
   };
-
   return (
     <Grid.Col sm={8} md={6} xl={4}>
       <Card withBorder radius="md" className={cx(classes.card)}>
