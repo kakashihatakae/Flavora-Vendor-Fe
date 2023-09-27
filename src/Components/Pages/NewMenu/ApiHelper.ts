@@ -74,8 +74,8 @@ export const handleUpload = async (file: File, newFileName: string) => {
   let client = new S3Client({
     region: "us-east-2",
     credentials: {
-      accessKeyId: "AKIAW5YDK2VR2D6Y6BVB",
-      secretAccessKey: "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",
+      accessKeyId: "",
+      secretAccessKey: "",
     },
   });
 
