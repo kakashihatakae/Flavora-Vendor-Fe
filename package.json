@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.420.0",
     "@emotion/react": "^11.11.1",
     "@mantine/core": "^6.0.20",
     "@mantine/dates": "^6.0.20",
