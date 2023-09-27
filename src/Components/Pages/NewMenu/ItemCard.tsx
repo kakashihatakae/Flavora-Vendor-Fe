@@ -78,7 +78,13 @@ export function ItemCard({
     <Grid.Col sm={8} md={6} xl={4}>
       <Card withBorder radius="md" className={cx(classes.card)}>
         <Card.Section>
-          <Image src={image} height={150} withPlaceholder />
+          <Image
+            // src={image}
+            height={150}
+            withPlaceholder
+            // src="https://food-items.s3.us-east-2.amazonaws.com/menu-items-pics/1695778897316"
+            src={image}
+          />
         </Card.Section>
 
         <Text className={classes.title} fw={500}>

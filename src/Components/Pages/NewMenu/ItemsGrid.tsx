@@ -22,7 +22,7 @@ const ItemsGrid = ({ tab }: ItemsGridProps) => {
       <Grid columns={24} gutter={15}>
         {items.map((item) => (
           <ItemCard
-            image=""
+            image={item.image}
             price={item.price}
             title={item.name}
             tab={tab}

@@ -17,11 +17,8 @@ import {
 import { Dropzone, DropzoneProps, IMAGE_MIME_TYPE } from "@mantine/dropzone";
 import { UxString } from "../../Shared/Strings";
 import { useState } from "react";
-
-import { BASE_URL } from "../../Shared/const";
 import { useDispatch } from "react-redux";
-import { addItem } from "./NewMenuSlice";
-import { addNewItem } from "./ApiHelper";
+import { addNewItem, handleUpload } from "./ApiHelper";
 
 const useStyles = createStyles((theme) => ({
   inputsStyle: {
@@ -52,17 +49,46 @@ const NewItemModal = ({
   const { theme, classes } = useStyles();
   const [price, setPrice] = useState<number | "">(0);
   const [name, setName] = useState("");
+  const [file, setFile] = useState<File>();
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState(false);
+  const showSubmitButton = file && price && name;
 
   const onClick = async () => {
+    if (!file) {
+      return;
+    }
+    setUploading(true);
+    try {
+      const newFileName = String(Date.now());
+      console.log({ newFileName });
+      await handleUpload(file, newFileName);
+      await addNewItem({
+        price: Number(price),
+        name,
+        dispatch,
+        image: `https://food-items.s3.us-east-2.amazonaws.com/menu-items-pics/${newFileName}`,
+      });
+      onCloseModal();
+    } catch (error) {
+      setError(true);
+      console.log(`error: ${error}`);
+    }
+    setFile(undefined);
+    setUploading(false);
+  };
+
+  const onClose = () => {
+    setFile(undefined);
+    setError(false);
     onCloseModal();
-    addNewItem({ price: Number(price), name, dispatch });
   };
 
   return (
     <>
       <Modal
         opened={modalOpen}
-        onClose={onCloseModal}
+        onClose={onClose}
         title={
           <Text size={theme.fontSizes.lg} weight={700}>
             {UxString.NewMenu.NewItemModal}
@@ -70,8 +96,16 @@ const NewItemModal = ({
         }
         centered
       >
+        {error && (
+          <Text color={theme.colors.red[7]} mb={8}>
+            There was an unexpected eror
+          </Text>
+        )}
         <Dropzone
-          onDrop={(files) => console.log("accepted files", files)}
+          onDrop={(files) => {
+            setFile(files[0]);
+            setError(false);
+          }}
           onReject={(files) => console.log("rejected files", files)}
           maxSize={3 * 1024 ** 2}
           accept={IMAGE_MIME_TYPE}
@@ -80,38 +114,71 @@ const NewItemModal = ({
           <Group
             position="center"
             spacing="xl"
-            style={{ minHeight: rem(220), pointerEvents: "none" }}
+            style={{ minHeight: rem(120), pointerEvents: "none" }}
           >
             <Dropzone.Accept>
-              <IconUpload
-                size="3.2rem"
-                stroke={1.5}
-                color={
-                  theme.colors[theme.primaryColor][
-                    theme.colorScheme === "dark" ? 4 : 6
-                  ]
-                }
-              />
+              <div style={{ display: "flex" }}>
+                <IconUpload
+                  size="3.2rem"
+                  stroke={1.5}
+                  color={
+                    theme.colors[theme.primaryColor][
+                      theme.colorScheme === "dark" ? 4 : 6
+                    ]
+                  }
+                />
+                <div>
+                  <Text size="xl" inline>
+                    Select Item images here
+                  </Text>
+                  <Text size="sm" color="dimmed" inline mt={7}>
+                    Drag images here or click to select files
+                  </Text>
+                </div>
+              </div>
             </Dropzone.Accept>
             <Dropzone.Reject>
-              <IconX
-                size="3.2rem"
-                stroke={1.5}
-                color={theme.colors.red[theme.colorScheme === "dark" ? 4 : 6]}
-              />
+              <div style={{ display: "flex" }}>
+                <IconX
+                  size="3.2rem"
+                  stroke={1.5}
+                  color={theme.colors.red[theme.colorScheme === "dark" ? 4 : 6]}
+                />
+                <div>
+                  <Text size="xl" inline>
+                    Select Item images here
+                  </Text>
+                  <Text size="sm" color="dimmed" inline mt={7}>
+                    Drag images here or click to select files
+                  </Text>
+                </div>
+              </div>
             </Dropzone.Reject>
-            <Dropzone.Idle>
-              <IconPhoto size="3.2rem" stroke={1.5} />
-            </Dropzone.Idle>
 
-            <div>
-              <Text size="xl" inline>
-                Select Item images here
-              </Text>
-              <Text size="sm" color="dimmed" inline mt={7}>
-                Drag images here or click to select files
-              </Text>
-            </div>
+            <Dropzone.Idle>
+              {file ? (
+                <>
+                  <Text size="xl" inline>
+                    {file.name}
+                  </Text>
+                  <Text size="sm" color="dimmed" inline mt={7}>
+                    Drag images here or click to select files
+                  </Text>
+                </>
+              ) : (
+                <div style={{ display: "flex" }}>
+                  <IconPhoto size="3.2rem" stroke={1.5} />
+                  <div>
+                    <Text size="xl" inline>
+                      Select Item images here
+                    </Text>
+                    <Text size="sm" color="dimmed" inline mt={7}>
+                      Drag images here or click to select files
+                    </Text>
+                  </div>
+                </div>
+              )}
+            </Dropzone.Idle>
           </Group>
         </Dropzone>
         <Group className={classes.inputsStyle} position="apart">
@@ -133,7 +200,13 @@ const NewItemModal = ({
           />
         </Group>
         <div className={classes.submitButton}>
-          <Button onClick={onClick}>Submit</Button>
+          <Button
+            onClick={onClick}
+            disabled={!showSubmitButton}
+            loading={uploading}
+          >
+            Submit
+          </Button>
         </div>
       </Modal>
     </>
